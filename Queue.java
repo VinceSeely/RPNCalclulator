@@ -1,103 +1,90 @@
-package RPNCalclulator;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * this is an implementation of a queue
- * @author vince
- */
-public class Queue 
+Creates a Queue class, that allows Objects to be added to the Queue,
+or removed and returned. Can check if a Queue is either full, or
+empty, and adds and removes Objects to the rear of the Queue.
+
+@author Shane Hendricks
+*/
+public class Queue // Student must properly comment
+
 {
+   private Node queue;
    
-   private Node list;
-   private int front, rear, count;
- 
    /**
-    * constructor for queue that initializes the queue size to 50
-    */
-   public Queue ()
+   Creates a Queue Object, with a size of SIZE.
+   */
+   public Queue()
    {
-      list = new Node (null, null);
-      count = 0;
    }
    
    /**
-    * checks to see if the queue is empty
-    * @return true if it is empty false if it is not empty
-    */
-   public boolean isEmpty()
+   Adds an element to the rear of the Queue.
+   @param x is the object to add.
+   */
+   public void add ( Object x )
    {
-      return count == 0;
-   }
-   
-   /**
-    * adds an Object to the queue
-    * @param x is the Object being added to the queue
-    */
-   public void add(Object x)
-   {
-      Node p = list;
-      while(p != null && p.next!=null) 
-          p = p.next;
-      if (p.info == null)
-          p.info = x;
+      if ( queue == null )
+         queue = new Node( x, null );
       else
-         p.next = new Node(x, null);
-     
-      count++;
+      {
+         Node p = queue;
+         while ( p.next != null )
+            p = p.next;
+         p.next = new Node( x, null );
+      }
+
    }
    
    /**
-    * removes an element from the queue starting at the front
-    * @return the element that is being used so the user can use this element
-    */
+   Removes the Object at the rear of the Queue.
+   @return the Object at the rear.
+   */
    public Object remove()
    {
-      Object retval = list.info;
-      count --;
-      if (count != 0)
-        list = list.next;
-      return retval;
+      if ( queue == null )
+         return queue.info;
+      else
+      {
+         Node p = queue;
+         Object x;
+         while ( p.next != null )
+            p = p.next;
+         x = p.info;
+         
+         if ( queue.next == null )
+            queue = null;
+         else
+         {       
+            Node q = queue;
+            while ( q.next.next != null )  
+               q = q.next;
+            q.next = null;  
+         }
+         return x;
+      }
+   }
+
+   public boolean isEmpty()
+   {
+      return queue == null;
    }
    
-   /**
-    * clears the queue and sets all the values to null and sets the rear and 
-    * front values to 0
-    */
    public void clear()
    {
-      list = new Node (null, null);
+      queue = null;
    }
    
    /**
-    * test bed main
-    * @param args not used
-    */
-   public static void main (String[] args)
+   Creates a test-bed main for the Queue class.
+   @param args is unused.
+   */
+   public static void main(String [] args)
    {
-      Queue test = new Queue();
-      String input1 = "a";
-      String input2 = "b";
-      String input3 = "c";
-      String input4 = "d";
-      String input5 = "e";
-      String input6 = "f";
-      System.out.println(test.isEmpty());
-      test.add(input1);
-      test.add(input2);
-      test.add(input3);
-      test.add(input4);
-      test.add(input5);
-      System.out.println(test.isEmpty());
-      System.out.println(test.remove());
-      System.out.println(test.remove());
-      test.add(input6);
-      test.clear();
-      System.out.println(test.isEmpty());
+      Queue queue = new Queue();
       
+      queue.add("Hello");
+      queue.add("Goodbye");
+      System.out.println(queue.remove().toString());
+      System.out.println(queue.remove().toString());
    }
 }

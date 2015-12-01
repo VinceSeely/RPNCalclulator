@@ -1,295 +1,170 @@
-package RPNCalclulator;
+/**
+Creates a RpnEvaluator class, to evaluate post fix Fraction operations.
+Allows a user to input a post fix formated Fraction operation, then 
+solves the problem, using a Stack and a Queue, then outputs the answer,
+and the intermediate results.
 
-import java.io.File;
+@author Shane Hendricks
+*/
+
 import java.util.Scanner;
 
-/**
- * This Class evaluates RPN equations with fractions
- * @author vince
- */
 public class RpnEvaluator 
 {
-   
    private Scanner stdin;
-   private Stack fractions;
-   private int numEvaluated;
-   private Queue intermidiate;
+   private final Stack myStack = new Stack();
+   private final Queue myQueue = new Queue();
+   private String myStringTok;
+   private Fraction answer;
+   private int num;
+   private boolean validInput, opDone;
+   
+   public RpnEvaluator()
+   {
+      // Does Nothing
+   }
+   
+   public RpnEvaluator(String initStr)
+   {
+      myStringTok = initStr;
+      processToken(myStringTok);
+   }
+   
    /**
-    * the only public method that is there to allocate where things will be 
-    * happening in this class in order to calculate RPN equations
-    */
-   public void run()
+   Runs the program, taking a user inputed Fraction expression. 
+   Reads in each String token, and preform appropriate action.
+   @throws java.io.IOException
+   */
+   public void run() throws java.io.IOException
    {
       stdin = new Scanner(System.in);
-      String input = "";
-      numEvaluated = 0;
-      intermidiate = new Queue();
-      fractions = new Stack();
-      while ( stdin.hasNext() )
+      processToken();
+      
+   }
+   
+   public void processToken()
+   {
+      String input;
+      int numExpressions = 1;
+      while(stdin.hasNext())
       {
-         evaluate(stdin.next());    
-      } 
-      System.out.println("Normal Termination of Program 3. ");
-
+         validInput = true;
+         input = stdin.next();
+         System.out.print("Expression " + numExpressions + " is: ");
+         while(!input.equals("#"))
+         {
+            opDone = false;
+            if(validInput)
+               processToken(input);
+            input = stdin.next();
+            num++;
+         }
+         output();
+         numExpressions++;
+         num = 0;
+         myStack.clear();
+         myQueue.clear();
+      }
+      System.out.println("Normal Termination of Program 3.");
    }
    
    /**
-    * this will evaluate the RPN equation and see if the input is invalid
-    * @param input is the first part of the input line to be evaluated in this 
-    *       method
-    */ 
-   private void evaluate(String input)
+   Evaluates the user inputed Token and determines if it is
+   a Fraction or a operator.
+   @param input is the Token to evaluate.
+   */
+   public void processToken(String input)
    {
-      input = input.replace(" ", "");
-      boolean inputGood = true;
-      String equation = "";
-      while (!input.equals("#") && inputGood)
+      Object one, two;
+      if(isOperator(input))
       {
-         if (input.contains("/") && input.contains("("))
+         if(!myStack.isEmpty())
          {
-            addElement(input);
-            equation += fracString(input);
+            one = myStack.pop();
+            if(!myStack.isEmpty())
+            {
+               two = myStack.pop();
+               evalOperator(input.charAt(0), one, two);
+            }
+            else 
+               validInput = false;
          }
          else
-         {
-            inputGood = calculateMath(input);
-            equation += input;
-         }
-         input = stdin.next();
-      }
-      equation = equation.replace("#", "");
-      System.out.println("Expression " + ++numEvaluated + " is: " + equation);
-      displayOut(inputGood, equation, input);
-      fractions.clear();
-      intermidiate.clear();
-   }
-   
-   /**
-    * this method displays the expected output for correct inputs
-    * @param inputGood it double checks to make sure that the input is 
-    *          actually good
-    * @param equation the equation in RPN as it stands without spaces or #
-    * @param input used to make sure that it was the legit end of the string
-    */
-   private void displayOut(boolean inputGood, String equation, String input)
-   {
-      if (!inputGood || equation.equals("") && (fractions.isEmpty() || 
-              intermidiate.isEmpty()))
-         endRun(input);
-      else
-         if (!fractions.isEmpty())
-         {
-            Fraction tempFrac = (Fraction) fractions.pop();
-            if (!fractions.isEmpty())
-            {
-               fractions.push(tempFrac);
-               endRun("#");
-            }
-            else
-            {
-               fractions.push(tempFrac);
-               displayResults();
-            }
-         }
-      
+            validInput = false;
+         System.out.print(input);
          
-   }
-   
-   /**
-    * this method reaches the end of the line of the current input
-    * @param input most recent string read by the scanner
-    */
-   private void endRun(String input)
-   {
-      while(!input.contains("#"))
-         input = stdin.nextLine();
-      
-      System.out.print("Invalid Expression \nIntermediate results: ");
-      while (!intermidiate.isEmpty())
-      {
-         System.out.print(intermidiate.remove());
       }
-      System.out.println();
-      
-   }
-   
-   /**
-    * returns the string of a fraction so that the equation string will be 
-    * correct
-    * @param frac the string of the fraction that may need to be simplified
-    * @return a reduced fraction in the form of a string based on the string 
-    *    that was entered into the method
-    */
-   private String fracString(String frac)
-   {
-      Fraction temp = new Fraction(frac);
-      return temp.toString();
-   }
-   
-   /**
-    * displays the results of a valid input string and shows the final result 
-    * and intermediate results
-    */
-   private void displayResults()
-   {
-      System.out.println("The value is: " + fractions.pop());
-      System.out.print("Intermediate results: ");
-      while (!intermidiate.isEmpty())
+      else if(input.charAt(0) == '(')
       {
-         System.out.print(intermidiate.remove());
+         myStack.push(new Fraction(input));
+         System.out.print(new Fraction(input).toString());
+         validInput = true;
       }
-      System.out.println();
+      else
+      {
+         System.out.print(input);
+         validInput = false;
+      }
+   }
+   
+   
+   public Queue getQueue()
+   {
+      return myQueue;
+   }
+   
+   public Stack getStack()
+   {
+      return myStack;
+   }
+   
+   
+   /**
+   Outputs the expression after all Tokens were evaluated.
+   Outputs the value and the intermediate results.
+   */
+   private void output()
+   {
+      if(validInput && (opDone || num == 1))
+         System.out.print("\nThe value is: " + myStack.pop());
+      else
+         System.out.print("\nInvalid Expression");
+         
+      System.out.print("\nIntermediate results: ");
+      while(!myQueue.isEmpty())
+         System.out.print(myQueue.remove().toString());
+      System.out.print("\n");
       
    }
    
    /**
-    * adds a fraction to the stack
-    * @param input string that will become a fraction that is added to the 
-    *    stack
-    */
-   private void addElement(String input)
+   Determines if the Token is an operator.
+   @param token to check if operator.
+   @return whether the Token is an operator(true) or not(false).
+   */
+   private boolean isOperator(String token)
    {
-     Fraction tempFrac = new Fraction(input);
-     fractions.push(tempFrac);
+      return (token.equals("+") || token.equals("-") || token.equals("*")); 
    }
    
    /**
-    * figures out which operation is being done for the problem and then 
-    * goes and figures out the output
-    * @param operator this a non fraction string that is then checked to see 
-    *       if it is a valid input
-    * @return returns a boolean that says if it was a valid operation true 
-    *    means successful and false means that it failed
-    */
-   private boolean calculateMath(String operator)
+   Evaluates the Fractions in the Stack, based on what Operator
+   the user inputs, then adds that value to the Queue.
+   @param operation is what operation to preform on the Fractions.
+   @param one is the first Object.
+   @param two is the second Object.
+   */
+   private void evalOperator(char operation, Object one, Object two)
    {
-      boolean inputGood = true;
-      switch(operator)
-      {
-         case "+":
-            inputGood = addTwo();
-            break;
-         case "-":
-            inputGood = subtractTwo();
-            break;
-         case "*":
-            inputGood = multiplyTwo();
-            break;
-         default:
-            inputGood = false;
-            break;
-      }
-      return inputGood;
-   }
-   
-   /**
-    * checks to see if all teh fractions are out of the stack except for one 
-    * fraction
-    * @return false if there is less than one or more than one. returns true 
-    *    if there is only 1
-    */
-   private boolean isComplete()
-   {
-      boolean retval = false;
-      if (fractions.isEmpty())
-      {
-         Fraction tempFrac = (Fraction) fractions.pop();
-         if(fractions.isEmpty())
-         {
-            retval = true;
-         }
-         fractions.push(tempFrac);
-      }
-      return retval;
-   }
-   
-   /**
-    * takes the first two items to come off of the stack and subtracts the 
-    * first from the second
-    * @return true if it was able to complete false if there were not enough 
-    *    fractions
-    */
-   private boolean subtractTwo()
-   {
-      boolean inputGood = true;
-      if(!fractions.isEmpty())
-      {
-         Fraction num2 = (Fraction) fractions.pop();
-         if (!fractions.isEmpty())
-         {
-            Fraction num1 = (Fraction) fractions.pop();
-            Fraction answer = num1.subtract(num2);
-            fractions.push(answer);
-            intermidiate.add(answer);
-         }
-         else 
-         {
-            inputGood = false;
-            fractions.push(num2);
-         }
-      }
-      else
-         inputGood = false;
-      return inputGood;
-   }
-   
-   /**
-    * takes the first two items to come off of the stack and adds the 
-    * first to the second
-    * @return true if it was able to complete false if there were not enough 
-    *    fractions
-    */
-   private boolean addTwo()
-   {
-      boolean inputGood = true;
-      if(!fractions.isEmpty())
-      {
-         Fraction num2 = (Fraction) fractions.pop();
-         if (!fractions.isEmpty())
-         {
-            Fraction num1 = (Fraction) fractions.pop();
-            Fraction answer = num1.add(num2);
-            fractions.push(answer);
-            intermidiate.add(answer);
-         }
-         else 
-         {
-            inputGood = false;
-            fractions.push(num2);
-         }
-      }
-      else
-         inputGood = false;
-      return inputGood;
-   }
-   
-   /**
-    * takes the first two items to come off of the stack and multiplies the 
-    * first by the second
-    * @return true if it was able to complete false if there were not enough 
-    *    fractions
-    */
-   private boolean multiplyTwo()
-   {
-      boolean inputGood = true;
-      if(!fractions.isEmpty())
-      {
-         Fraction num2 = (Fraction) fractions.pop();
-         if (!fractions.isEmpty())
-         {
-            Fraction num1 = (Fraction) fractions.pop();
-            Fraction answer = num1.multiply(num2);
-            fractions.push(answer);
-            intermidiate.add(answer);
-         }
-         else 
-         {
-            inputGood = false;
-            fractions.push(num2);
-         }
-      }
-      else
-         inputGood = false;
-      return inputGood;
+      Object result = null;
+      if(operation == '+')
+         result = ((Fraction)one).plus((Fraction)two);
+      else if(operation == '-')
+         result = ((Fraction)two).minus((Fraction)one);
+      else if(operation == '*')
+          result = ((Fraction)one).times((Fraction)two);
+      myQueue.add(new Fraction((Fraction)result));
+      myStack.push(new Fraction((Fraction)result));
+      opDone = true;
    }
 }

@@ -1,21 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package RPNCalclulator;
+/**
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
 
 /**
- *
- * @author vince
+ 
+ @author Shane
  */
-public class Node {
-    public Node next;
-    public Object info;
-    
-    public Node(Object i, Node n)
-    {
-        next = n;
-        info = i;
-    }
+public class Node 
+{
+   public Object info;
+   public Node next;
+   public Node(Object x, Node p)
+   {
+      info = x; 
+      next = p;
+   }
 }

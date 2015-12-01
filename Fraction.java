@@ -1,13 +1,9 @@
-package RPNCalclulator;
-
-
-
-
 /**
- * this is a class that creates a fraction that is at a fixed size
- * @author vince
+Class used to create Fraction objects.
+This class is used to create Fractions from user input, 
+add, subtract, multiply, and reduce Fractions.
+@author Shane Hendricks
  */
-
 import java.util.StringTokenizer;
 
 public class Fraction
@@ -15,176 +11,180 @@ public class Fraction
    private int numerator, denominator;
    
    /**
-    * sets equal to zero with out a zero denominator.
-    */
+   Creates a default Fraction with a numerator of zero, and a
+   denominator of 1.
+   */
    public Fraction()
    {
-      // Set numerator to 0, denominator to 1
-      this.numerator = 0;
-      this.denominator = 1;
+      numerator = 0;
+      denominator = 1;
    }
    
    /**
-    * takes a string and makes a fraction out of the string
-    * @param FractionString is the string that is going to be made a fraction
-    */
-   public Fraction ( String FractionString )
+   Creates a Fraction based on user input for the numerator
+   and the denominator.
+   @param nu is the numerator value
+   @param de is the denominator value
+   */
+   public Fraction(int nu, int de)
    {
-      FractionString = FractionString.replace("(", "");
-      FractionString = FractionString.replace(")", "");
-      StringTokenizer st = new StringTokenizer ( FractionString, "/" );
+      numerator = nu;
+      denominator = de;
+      Reduce();
+   }
+   
+   /**
+   Creates a Fraction from a String.
+   @param FractionString is the String to be made into a fraction.
+   */
+   public Fraction(String FractionString)
+   {
+      StringTokenizer st = new StringTokenizer(FractionString, "/()");
       numerator = Integer.parseInt(st.nextToken());
       denominator = Integer.parseInt(st.nextToken());
-      reduce();
-   }
-   /**
-    * sets numerator and denominator to custom values and reduces fraction
-    * @param numer set numerator equal to
-    * @param denom set denominator equal to
-    */
-   public Fraction (int numer, int denom)
-   {
-      this.denominator = denom;
-      this.numerator = numer;
-      reduce();
+      Reduce();
    }
    
    /**
-    * Copy constructor copies Fraction x to a new class.
-    * @param x fraction that will  be copied to this object
-    */
-   public Fraction(Fraction x)
+   Creates a Fraction that is a copy of another Fraction
+   @param f1 is the Fraction to be copied.
+   */
+   public Fraction(Fraction f1)
    {
-      this.numerator = x.numerator;
-      this.denominator = x.denominator;
+      numerator = f1.numerator;
+      denominator = f1.denominator;
+      Reduce();
    }
-
+   
    /**
-    * checks to see if another object is equal to this one
-    * @param x is the object we are comparing against
-    * @return true if it is equal false if not equal
-    */
-   @Override
+   Used to reduce a fraction to its simplest form.
+   */
+   private void Reduce()
+   {
+      int lowest;
+      int highest;
+      int temp;
+      if(Math.abs(numerator) > Math.abs(denominator))
+      {
+         highest = numerator;
+         lowest = denominator;
+      }
+      else
+      {
+         highest = denominator;
+         lowest = numerator;
+      }
+      while(lowest != 0)
+      {
+         temp = lowest;
+         lowest = highest % lowest;
+         highest = temp;
+      }
+      numerator /= highest;
+      denominator /= highest;
+      if(denominator < 0)
+      {
+         numerator *= -1;
+         denominator *= -1;
+      }
+      
+   }
+   
+   /**
+   Adds two fractions together, and returns their sum.
+   @param f1 is the fraction to be added to the current instance
+   @return A Fraction that is the sum of the two Fractions
+   */
+   public Fraction plus(Fraction f1) 
+   {
+      Fraction sum = new Fraction();
+      sum.denominator = denominator * f1.denominator;
+      sum.numerator = numerator * f1.denominator 
+         + denominator * f1.numerator;
+      sum.Reduce();
+      return sum;
+   }
+   
+   /**
+   Subtracts two fractions from each other, and returns their 
+   difference.
+   @param f1 is the fraction to be subtracted to the current instance
+   @return A Fraction that is the difference of the two Fractions
+   */
+   public Fraction minus(Fraction f1)
+   {
+      Fraction diff = new Fraction();
+      diff.denominator = denominator * f1.denominator;
+      diff.numerator = numerator * f1.denominator 
+            - denominator * f1.numerator;
+      return diff;
+   }
+   
+   /**
+   Multiplies two fractions together, and returns their product.
+   @param f1 is the fraction to be multiplied to the current instance
+   @return A Fraction that is the product of the two Fractions
+   */
+   public Fraction times(Fraction f1)
+   {
+      Fraction product = new Fraction();
+      product.denominator = denominator * f1.denominator;
+      product.numerator = numerator * f1.numerator;
+      return product;
+   }
+   
+   /**
+   Determines if the two Fractions have equal values.
+   @param x is the object we want to check
+   @return A boolean of if they are equal to one another.
+   */
+   @Override 
    public boolean equals(Object x)
    {
-      boolean retval = false;
-      
-      if (x instanceof Fraction)
+      if(x instanceof Fraction)
       {
-         Fraction z = (Fraction) x;
-         retval = z.numerator == this.numerator &&
-                 z.denominator== this.denominator;
+         if(toString().equals(x.toString()))
+            return true;
       }
       
-      return retval;
+      return false;
    }
    
    /**
-    * adds fraction x to this fraction
-    * @param x fraction that is being added
-    * @return the sum is sent back
-    */
-   public Fraction add(Fraction x)
-   {
-      int numer1 = this.numerator;
-      int numer2 = x.numerator;
-      int denom1 = this.denominator;
-      int denom2 = x.denominator;
-      numer1 *= denom2;
-      numer2 *= denom1;
-      denom1 *= denom2;
-      numer1 += numer2;
-      Fraction retval = new Fraction(numer1, denom1);
-      return retval;
-   }   
-   
-   /**
-    * multiplies this fraction by fraction x
-    * @param x fraction that is being multiplied
-    * @return the product is sent back
-    */
-   public Fraction multiply(Fraction x)
-   {
-      int numer = this.numerator * x.numerator;
-      int denom = this.denominator * x.denominator;
-      Fraction retval = new Fraction(numer, denom);
-      return retval;
-   }
-   
-   /**
-    * subtract fraction x from this fraction.
-    * @param x fraction that is being taken away from this fraction.
-    * @return the total is returned
-    */
-   public Fraction subtract(Fraction x)
-   {
-      int numer1 = this.numerator;
-      int numer2 = x.numerator;
-      int denom1 = this.denominator;
-      int denom2 = x.denominator;
-      numer1 *= denom2;
-      numer2 *= denom1;
-      denom1 *= denom2;
-      numer1 -= numer2;
-      Fraction retval = new Fraction(numer1, denom1);
-      return retval;
-   }
-   
-   /**
-    * Overrides the toString method of the Object class.
-    * @return numerator/denominator
-    */
-   @Override
+   Makes the Fraction a String for easy output.
+   @return A String representation of the Fraction.
+   */
+   @Override 
    public String toString()
    {
-      return "(" + this.numerator + "/" + this.denominator + ")";
+      return "(" + numerator + "/" + denominator + ")";
    }
+   
    /**
-    * reduces the fraction.
-    */
-   private void reduce()
-   {
-      int lowest = Math.min(Math.abs(numerator), Math.abs(denominator));
-      int highest = Math.max(Math.abs(numerator), Math.abs(denominator));
-      
-      while (lowest != 0)
-      {
-         int temp = lowest;
-         lowest = highest % lowest;
-         highest  = temp;
-      }
-      
-      this.numerator /= highest;
-      this.denominator /= highest;
-      if (this.denominator < 0)
-      {
-         this.numerator *= -1;
-         this.denominator *=  -1;
-      } 
-         
-   }
-   /**
-    * this is the testbed main
-    * @param args 
-    */
+   A simple test-bed main for the Fraction class.
+   @param args is unused
+   */
    public static void main ( String args[] ) 
    {
       Fraction c1 = new Fraction();
-      System.out.println(c1);
-      Fraction c2 = new Fraction(4 ,2);
-      Fraction c3 = new Fraction(c2);
-      Fraction c4 = new Fraction ("40/-50");
-      Fraction c2Plusc3 = new Fraction (4,1);
-      Fraction c2timesc1 = new Fraction (0,1);
-      System.out.println("c3 " + c3);
-      System.out.println("c4 " + c4);
-      System.out.println("c1 " + c1);
-      System.out.println("c2 " + c2);
-      System.out.println("c2 * c1 " + c2.multiply(c1) + 
-              (c2timesc1.equals(c2.multiply(c1))));
-      System.out.println("c2 + c3 "+c2.add(c3) + 
-              (c2Plusc3.equals(c2.add(c3))));
-      System.out.println("c2 - c4 " + c2.subtract(c4));
+      Fraction c2 = new Fraction(c1);
+      Fraction c3 = new Fraction(3,6);
+      Fraction c4 = new Fraction("(3/4)");
+      
+      System.out.println("Fraction c1: " + c1.toString());
+      System.out.println("Fraction c2: " + c2.toString());
+      System.out.println("Fraction c3: " + c3.toString());
+      System.out.println("Fraction c4: " + c4.toString());
+      
+      if(c1.equals(c2))
+         System.out.println("Fractions are equal, Test Passed");
+      
+      if(!c1.equals(c3))
+         System.out.println("Fractions not equal, Test Passed");
+      
+      System.out.println("c3 + c4 = " + c3.plus(c4).toString());
+      System.out.println("c3 - c4 = " + c3.minus(c4).toString());
+      System.out.println("c3 * c4 = " + c3.times(c4).toString());
    }
 
 }
