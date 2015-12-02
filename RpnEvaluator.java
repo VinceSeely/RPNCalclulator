@@ -37,17 +37,16 @@ public class RpnEvaluator
    */
    public void run() throws java.io.IOException
    {
-      stdin = new Scanner(System.in);
       processToken();
-      
    }
    
    public void processToken()
    {
       String input;
+      stdin = new Scanner(System.in);
       int numExpressions = 1;
-      while(stdin.hasNext())
-      {
+  //    while(stdin.hasNext())
+    //  {
          validInput = true;
          input = stdin.next();
          System.out.print("Expression " + numExpressions + " is: ");
@@ -64,7 +63,7 @@ public class RpnEvaluator
          num = 0;
          myStack.clear();
          myQueue.clear();
-      }
+  //    }
       System.out.println("Normal Termination of Program 3.");
    }
    
@@ -163,6 +162,7 @@ public class RpnEvaluator
          result = ((Fraction)two).minus((Fraction)one);
       else if(operation == '*')
           result = ((Fraction)one).times((Fraction)two);
+      System.out.println("Result is: " + result);       //Delete
       myQueue.add(new Fraction((Fraction)result));
       myStack.push(new Fraction((Fraction)result));
       opDone = true;

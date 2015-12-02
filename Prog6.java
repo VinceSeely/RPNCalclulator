@@ -12,10 +12,10 @@ public class Prog6
       try
       {
          RpnEvaluator rpne = new RpnEvaluator();
-         if(args.length == 1)
+         if(args.length == 0)
             rpne.run();
-         else if(args.length == 0)
-            frame.setVisible(true);
+         //else if(args.length == 1)
+            //frame.setVisible(true);
       }
       catch (Exception e)
       {

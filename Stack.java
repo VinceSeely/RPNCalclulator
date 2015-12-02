@@ -53,6 +53,7 @@ public class Stack
       System.out.println(s.isEmpty());
       s.push("HELLO");
       s.push("No");
+      System.out.println(s.isEmpty());
       System.out.println(s.pop().toString());
       System.out.println(s.pop().toString());
    }

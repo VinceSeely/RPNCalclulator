@@ -1,19 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/**
+import java.util.StringTokenizer;
 
- @author Shane
- */
 public class Prog6Frame extends javax.swing.JFrame
 {
-   private String token;
-   private Stack tempStack;
-   private Queue tempQueue;
-   private RpnEvaluator rpne;
+   private String token = "";
+   private Stack tempStack = new Stack();
+   private Queue tempQueue = new Queue();
+   private RpnEvaluator rpne = new RpnEvaluator();
+   private StringTokenizer tk;
    /**
     Creates new form Prog6Frame
     */
@@ -145,10 +139,21 @@ public class Prog6Frame extends javax.swing.JFrame
 
    private void stepBtnActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_stepBtnActionPerformed
    {//GEN-HEADEREND:event_stepBtnActionPerformed
-      token = stackArea.toString();
-      if(rpne == null)
-         rpne = new RpnEvaluator(token);
-      rpne.processToken();
+      String temp = "";
+      if(token.equals(""))
+      {
+         getToken();
+      }
+      
+      if(!token.equals("") && tk.hasMoreTokens())
+      {
+         temp = tk.nextToken();
+         System.out.println(temp);
+         rpne.processToken(temp);
+      }
+      else if(!tk.hasMoreTokens())
+         outputAnswer();
+      
       outputStack();
       outputQueue();
    }//GEN-LAST:event_stepBtnActionPerformed
@@ -157,30 +162,55 @@ public class Prog6Frame extends javax.swing.JFrame
    {//GEN-HEADEREND:event_clearBtnActionPerformed
       tempStack.clear();
       tempQueue.clear();
+      expressionField.setText("");
+      answerField.setText("");
+      stackArea.setText("");
+      queueArea.setText("");
+      token = "";
    }//GEN-LAST:event_clearBtnActionPerformed
 
+   private void getToken()
+   {
+      token = expressionField.getText();
+      if(token != null && !token.equals(""))
+         tk = new StringTokenizer(token);
+   }
+   
    private void outputStack()
    {
       tempStack = rpne.getStack();
+      Stack s = new Stack();
+      stackArea.setText("");
       while(!tempStack.isEmpty())
       {
-         stackArea.add(tempStack.pop().toString(), this);
+         Fraction f1 = (Fraction)tempStack.pop();
+         stackArea.append(f1.toString() + "\n");
+         s.push(f1);
       }
+      while(!s.isEmpty())
+         tempStack.push(s.pop());
    }
    
    private void outputQueue()
    {
       tempQueue = rpne.getQueue();
-      while(!tempStack.isEmpty())
+      Queue q = new Queue();
+      queueArea.setText("");
+      while(!tempQueue.isEmpty())
       {
-         stackArea.add(tempQueue.remove().toString(), this);
+         Fraction f1 = (Fraction)tempQueue.remove();
+         queueArea.append(f1.toString() + "\n");
+         q.add(f1);
       }
+      while(!q.isEmpty())
+         tempQueue.add(q.remove());
    }
    
    
-   
-   
-   
+   private void outputAnswer()
+   {
+      answerField.setText(tempStack.pop().toString());
+   }
    
    /**
     @param args the command line arguments

@@ -41,27 +41,9 @@ public class Queue // Student must properly comment
    */
    public Object remove()
    {
-      if ( queue == null )
-         return queue.info;
-      else
-      {
-         Node p = queue;
-         Object x;
-         while ( p.next != null )
-            p = p.next;
-         x = p.info;
-         
-         if ( queue.next == null )
-            queue = null;
-         else
-         {       
-            Node q = queue;
-            while ( q.next.next != null )  
-               q = q.next;
-            q.next = null;  
-         }
-         return x;
-      }
+      Object val = queue.info;
+      queue = queue.next;
+      return val;
    }
 
    public boolean isEmpty()
